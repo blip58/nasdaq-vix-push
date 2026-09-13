@@ -162,17 +162,37 @@ def check_once(cfg, dry=False):
     """抓行情 -> 判断 VIX 是否大于阈值 -> 触发推送(带去重)。返回本轮是否推送。"""
     symbols = [s for s, _ in cfg["symbols"]]
     quotes = fetcher.fetch_all(symbols, tuple(cfg["sources"]))
+    state = load_state()
+    now = now_bj()
+    today = now.strftime("%Y-%m-%d")
+
     missing = [s for s in symbols if s not in quotes]
     if missing:
         log.warning("未取到行情: %s", ", ".join(missing))
     if not quotes:
-        log.error("所有数据源均失败,本轮跳过")
+        # 连续取不到数据时主动报一次警:避免"你以为它在盯着,其实早就坏了"
+        streak = int(state.get("fetch_fail_streak") or 0) + 1
+        state["fetch_fail_streak"] = streak
+        log.error("所有数据源均失败(连续 %d 次),本轮跳过", streak)
+        if streak >= 3 and not state.get("fetch_warned"):
+            minutes = streak * int(cfg["monitor"]["check_interval_min"])
+            title = "⚠️ VIX 监控异常:连续取不到行情数据"
+            md = "\n".join([
+                f"连续 **{streak}** 次(约 {minutes} 分钟)没取到任何行情,",
+                "这段时间不会有告警,可能是数据源或网络问题,建议看一下仓库的 Actions 日志。",
+                "",
+                f"🕐 {now.strftime('%Y-%m-%d %H:%M')} 北京时间",
+            ])
+            deliver(cfg, title, md, analyzer.plain(md), dry)
+            state["fetch_warned"] = True
+        save_state(state)
         return False
 
-    state = load_state()
+    # 恢复正常,清掉连续失败计数
+    state["fetch_fail_streak"] = 0
+    state["fetch_warned"] = False
+
     alert_state = state.setdefault("alert", {"was_above": False, "last_date": "", "count": 0})
-    now = now_bj()
-    today = now.strftime("%Y-%m-%d")
     pushed = False
 
     sym = cfg["alert"]["symbol"]
