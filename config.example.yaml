@@ -1,0 +1,85 @@
+# ============================================================
+# 纳指 & VIX 监控推送 配置文件
+# 使用方法:把本文件复制一份改名为 config.yaml(放在 main.py 同目录),再修改。
+# 不创建 config.yaml 也可以运行,此时使用内置默认值:
+#   仅当 VIX > 30 时推送 + 回落时发恢复通知,不开启每日播报。
+# ============================================================
+
+# ---------- 告警(核心功能) ----------
+alert:
+  symbol: "^VIX"        # 触发告警的标的
+  above: 30.0           # 只有 VIX 大于该值才推送
+  notify_recover: true  # VIX 回落到阈值以下时,发一条"已恢复"通知
+  repeat_daily: false   # 持续高于阈值时,是否每天最多再提醒一次( false=只在突破那一刻提醒 )
+
+# ---------- 每日定时播报(默认关闭) ----------
+daily_report:
+  enabled: false        # 改为 true 后,每天到点发一条全部行情速报
+  times: ["05:30"]      # 北京时间,美股收盘(冬令时)后约 1.5 小时
+
+# ---------- 监控频率 ----------
+monitor:
+  check_interval_min: 10   # loop 常驻模式每隔多少分钟检查一次;任务计划模式同样建议 10 分钟
+
+# ---------- 监控标的(代码不要改,展示名可随意改) ----------
+symbols:
+  - ["^IXIC", "纳斯达克综合"]
+  - ["^NDX",  "纳斯达克100"]
+  - ["^VIX",  "VIX恐慌指数"]
+  - ["^VXN",  "纳指VIX"]        # 新浪/腾讯没有 VXN,能连上 Yahoo 时才会显示
+
+# 告警消息里展示"距最高点回撤%"的标的
+drawdown_symbols:
+  - "^IXIC"
+  - "^NDX"
+
+# ---------- 数据源优先级(国内网络保持默认即可) ----------
+# sina=新浪, tencent=腾讯, yahoo=雅虎(VXN 只有 Yahoo 有)
+sources: ["sina", "tencent", "yahoo"]
+
+# ============================================================
+# 推送渠道:把想用的渠道 enabled 改为 true 并填好参数,可同时启用多个
+# ============================================================
+push:
+
+  # --- Server酱,推送到微信服务号。申请: https://sct.ftqq.com ---
+  serverchan:
+    enabled: false
+    sendkey: "SCTxxxxxx替换成你的SendKey"
+
+  # --- PushPlus,推送到微信公众号。申请: https://www.pushplus.plus ---
+  pushplus:
+    enabled: false
+    token: ""
+
+  # --- 企业微信群机器人:群设置 -> 群机器人 -> 添加,复制 Webhook 地址 ---
+  wecom_bot:
+    enabled: false
+    webhook: "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=xxxxxxxx"
+
+  # --- 钉钉群机器人:群设置 -> 智能群助手 -> 添加机器人(安全设置选"加签") ---
+  dingtalk_bot:
+    enabled: false
+    webhook: "https://oapi.dingtalk.com/robot/send?access_token=xxxxxxxx"
+    secret: "SECxxxxxxxx"    # 加签密钥;安全设置选"自定义关键词"则留空
+
+  # --- Telegram:找 @BotFather 建 bot 拿 token;chat_id 可问 @userinfobot ---
+  telegram:
+    enabled: false
+    bot_token: ""
+    chat_id: ""
+
+  # --- Bark(iOS App),手机装 Bark 后复制它的推送 URL ---
+  bark:
+    enabled: false
+    server: "https://api.day.app"
+    device_key: ""
+
+  # --- 邮箱(以 QQ 邮箱为例:密码填 SMTP 授权码,不是登录密码) ---
+  email:
+    enabled: false
+    smtp_host: "smtp.qq.com"
+    smtp_port: 465           # 465=SSL,587=STARTTLS
+    user: "you@qq.com"
+    password: ""
+    to: ["you@qq.com"]       # 收件人,可多个

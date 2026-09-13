@@ -1,0 +1,43 @@
+name: vix-monitor
+
+# 每 10 分钟检查一次;VIX > 30 时才真正推送,其余只更新状态
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: vix-monitor
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Check & push
+        env:
+          VIX_SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
+        run: python main.py run
+
+      - name: Persist state
+        run: |
+          git config user.name "vix-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -f state.json ]; then
+            git add state.json
+            git diff --cached --quiet || (git commit -m "chore: state [skip ci]" && git push)
+          fi
