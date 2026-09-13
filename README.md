@@ -16,7 +16,15 @@ VIX 恐慌指数:31.20 🔺 +4.80(+18.20%)
 - 纳斯达克100 28,900.00 🔻 -468.00(-1.59%),52周最高 30,762.20,回撤 -6.1%
 ```
 
-VIX 回落到 30 以下时会再收到一条「✅ 已回落」通知(可配置关闭)。持续高于 30 期间每天最多提醒一次(默认不早于北京时间 09:00),不会重复轰炸。
+**只在 VIX 大于 30 时才会收到消息**,低于 30 一律不打扰:突破 30 的那一刻立刻推一条,之后只要还在 30 以上每天最多再提醒一次(默认不早于北京时间 09:00),其余时间完全安静。
+
+## 别人想用怎么办(3 步,不用懂技术)
+
+1. 打开 <https://github.com/blip58/nasdaq-vix-push>,点右上角 **Use this template → Create a new repository**(用这个模板复制一份到你自己的账号)
+2. 去 <https://sct.ftqq.com> 用**你自己的微信**扫码登录,复制那串 `SCT` 开头的 SendKey
+3. 在你刚建的仓库里点 **Settings → Secrets and variables → Actions → New repository secret**,名字填 `SERVERCHAN_SENDKEY`,值粘贴你的 SendKey —— 完成,之后它就会自动监控并推送到你自己的微信
+
+每个人用自己的仓库和自己的 SendKey,互不影响、额度也各算各的(都免费)。想改阈值就在 **Settings → Variables** 里加一个 `VIX_ALERT_ABOVE`(比如 `25`)。
 
 ## 快速开始
 
@@ -79,7 +87,7 @@ python main.py test        # 真实发送一条测试消息到所有已启用渠
 | 配置 | 默认 | 说明 |
 | --- | --- | --- |
 | `alert.above` | 30.0 | VIX 推送阈值,改成别的数即可,比如 25 |
-| `alert.notify_recover` | true | 回落到阈值以下时发恢复通知 |
+| `alert.notify_recover` | false | 回落到阈值以下时是否也发一条通知(默认关) |
 | `alert.repeat_daily` | true | 持续高于阈值时,每天最多再提醒一次 |
 | `alert.repeat_after` | 09:00 | 每日提醒不早于该北京时间 |
 | `daily_report.enabled` | false | 每天定点发一条完整行情速报(`times` 为北京时间) |

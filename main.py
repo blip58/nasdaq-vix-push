@@ -54,7 +54,7 @@ DEFAULT_CONFIG = {
     "alert": {
         "symbol": "^VIX",      # 触发告警的标的
         "above": 30.0,         # 只有大于该值才推送
-        "notify_recover": True,   # 回落到阈值以下时发恢复通知
+        "notify_recover": False,  # 是否在回落到阈值以下时也发一条通知(默认关闭:只有大于阈值才推送)
         "repeat_daily": True,     # 持续高于阈值时,每天最多再提醒一次(不会重复轰炸)
         "repeat_after": "09:00",  # 每日提醒不早于该北京时间(避免半夜推送)
     },
