@@ -42,17 +42,26 @@ python main.py test        # 真实发送一条测试消息到所有已启用渠
 
 其他渠道的申请方式都写在 `config.example.yaml` 的注释里。多个渠道可同时启用。
 
-## 让它自动跑起来(二选一)
+## 让它自动跑起来
 
-**方式 A:Windows 任务计划(推荐,开机即生效,无需开窗口)**
+### 方式一:GitHub Actions 云端(推荐,免费,电脑不用开)
 
-双击 `install_task.bat` —— 会注册一个每 10 分钟运行一次的计划任务。因为只有 VIX > 30 才会真正推送,高频检查不会打扰你。卸载用 `remove_task.bat`。
+仓库里已带好 `.github/workflows/monitor.yml`:代码推到 GitHub **公开**仓库后,GitHub 的服务器每 10 分钟检查一次,VIX > 30 时把告警推到你微信,本机电脑完全不用开(公开仓库的 Actions 免费不限时长)。
 
-**方式 B:常驻后台**
+1. 在 GitHub 新建一个**公开**空仓库,把本目录推上去;
+2. 到 [sct.ftqq.com](https://sct.ftqq.com) 微信扫码登录,复制 SendKey;
+3. 仓库页 Settings → Secrets and variables → Actions → New repository secret:Name 填 `SERVERCHAN_SENDKEY`,Secret 填 SendKey;
+4. Actions 页手动 Run workflow 跑一次,微信收到消息即部署成功。
+
+密钥只存在 GitHub Secrets,不进代码;去重状态 `state.json` 由工作流自动回写仓库,云端与本机互不干扰。其他渠道同理,对应的环境变量名见 `main.py` 里的 `ENV_SECRETS`。
+
+### 方式二:Windows 任务计划(本机)
+
+双击 `install_task.bat` —— 注册一个每 10 分钟运行一次的计划任务。因为只有 VIX > 30 才会真正推送,高频检查不会打扰你。卸载用 `remove_task.bat`。
+
+### 方式三:常驻后台
 
 双击 `start_loop.bat`,程序在一个最小化窗口里每 10 分钟检查一次(间隔可在 config.yaml 的 `monitor.check_interval_min` 改)。想让开机自动启动,把 `start_loop.bat` 的快捷方式放进启动文件夹(资源管理器地址栏输入 `shell:startup` 粘贴)。
-
-> 注意:电脑关机/睡眠时不会检查。若希望全天候监控,把脚本部署到一台不关机的机器或服务器上,用 `python main.py loop` 挂着即可。
 
 ## 常用命令
 
