@@ -1,0 +1,10 @@
+{
+  "fetch_fail_streak": 0,
+  "fetch_warned": false,
+  "alert": {
+    "was_above": false,
+    "last_date": "",
+    "count": 0
+  },
+  "last_run_date": "2026-09-13"
+}
