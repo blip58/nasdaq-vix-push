@@ -55,7 +55,8 @@ DEFAULT_CONFIG = {
         "symbol": "^VIX",      # 触发告警的标的
         "above": 30.0,         # 只有大于该值才推送
         "notify_recover": True,   # 回落到阈值以下时发恢复通知
-        "repeat_daily": False,    # 持续高于阈值时,每天最多再提醒一次
+        "repeat_daily": True,     # 持续高于阈值时,每天最多再提醒一次(不会重复轰炸)
+        "repeat_after": "09:00",  # 每日提醒不早于该北京时间(避免半夜推送)
     },
     # 每日定时播报(默认关闭,按需开启)
     "daily_report": {"enabled": False, "times": ["05:30"]},
@@ -177,8 +178,11 @@ def check_once(cfg, dry=False):
         above = vix["price"] > threshold
         if above:
             first_time = not alert_state.get("was_above")
+            # 持续高于阈值时每天最多提醒一次,且不早于 repeat_after(默认 09:00 北京时间)
+            repeat_after = str(cfg["alert"].get("repeat_after") or "00:00")
             repeat = (cfg["alert"].get("repeat_daily")
-                      and alert_state.get("last_date") != today)
+                      and alert_state.get("last_date") != today
+                      and now.strftime("%H:%M") >= repeat_after)
             if first_time or repeat:
                 log.info("VIX %.2f > %.0f,触发告警推送", vix["price"], threshold)
                 title, md, text = analyzer.build_alert(vix, threshold, quotes, cfg, now)
