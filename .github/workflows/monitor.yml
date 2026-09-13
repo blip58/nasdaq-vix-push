@@ -49,13 +49,13 @@ jobs:
 
       - name: Persist state
         run: |
-          git config user.name "vix-bot"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "blip58"
+          git config user.email "301173563+blip58@users.noreply.github.com"
           # test --force 之类的运行不会写 state.json,此时直接跳过
           [ -f state.json ] || { echo "no state.json this run"; exit 0; }
           git add state.json
           git diff --cached --quiet && exit 0
-          git commit -m "chore: state [skip ci]"
+          git commit -m "chore: state [skip ci]" -m "Co-authored-by: glm5.3 <glm5.3@users.noreply.github.com>"
           # 推送失败(并发运行导致分支前进)时重试,状态以本次运行为准
           set +e
           for i in 1 2 3; do
