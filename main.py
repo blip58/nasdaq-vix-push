@@ -208,6 +208,10 @@ def check_once(cfg, dry=False):
             state["last_report_date"] = today
             log.info("已发送每日行情播报")
 
+    # 心跳:每天至少让 state.json 变化一次,云端据此提交一次,避免 GitHub 因 60 天
+    # 无仓库活动而自动停掉定时任务(该值每天只变一次,不会把提交历史刷爆)
+    state["last_run_date"] = today
+
     save_state(state)
     return pushed
 
