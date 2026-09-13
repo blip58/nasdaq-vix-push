@@ -38,6 +38,8 @@ jobs:
           # 密钥存在仓库 Settings → Secrets 里,不写进代码
           VIX_SERVERCHAN_SENDKEY: ${{ secrets.SERVERCHAN_SENDKEY }}
           VIX_PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+          # 想改阈值就在 Settings → Variables 里加一个 VIX_ALERT_ABOVE=25,不用改代码
+          VIX_ALERT_ABOVE: ${{ vars.VIX_ALERT_ABOVE }}
         run: |
           if [ "${{ inputs.test_push }}" = "true" ]; then
             python main.py test --force

@@ -104,6 +104,13 @@ def apply_env(cfg):
         d[path[-1]] = value
         if path[-1] in _ENABLE_TRIGGERS:
             d["enabled"] = True
+    # 阈值可用环境变量/仓库变量覆盖,不改代码就能调整(如 GitHub 仓库 Variables 里的 VIX_ALERT_ABOVE)
+    above = os.environ.get("VIX_ALERT_ABOVE")
+    if above:
+        try:
+            cfg["alert"]["above"] = float(above)
+        except ValueError:
+            log.warning("VIX_ALERT_ABOVE 不是数字,已忽略: %s", above)
     return cfg
 
 
