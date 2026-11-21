@@ -3,8 +3,8 @@
   "fetch_warned": false,
   "alert": {
     "was_above": true,
-    "last_date": "2026-11-21",
+    "last_date": "2026-11-22",
     "count": 1
   },
-  "last_run_date": "2026-11-21"
+  "last_run_date": "2026-11-22"
 }
