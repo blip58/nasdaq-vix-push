@@ -2,7 +2,7 @@
   "fetch_fail_streak": 0,
   "fetch_warned": false,
   "alert": {
-    "was_above": true,
+    "was_above": false,
     "last_date": "2026-11-23",
     "count": 1
   },
